@@ -1,16 +1,18 @@
-import java.util.List;
+
 
 public class Alphabet {
-    public List<Character> Alphabets;
-    public Alphabet(List<Character> alphabets){
-        this.Alphabets=Alphabets;
+    public char[] ListOfChar;
+
+    public Alphabet(char[] alphabets){
+        this.ListOfChar=alphabets;
     }
-    public boolean inAlphabet(char a){
-        for(int i=0;i<Alphabets.size();i++){
-            if(Alphabets.get(i).equals(a))
-                return true;   
+    public Alphabet(){}
+    public int inAlphabet(char a){
+        for(int i=0;i<ListOfChar.length;i++){
+            if(ListOfChar[i]==a)
+                return i;   
         }
-        return false;
+        return -1;
     }
 
 }
