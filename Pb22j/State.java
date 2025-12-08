@@ -1,22 +1,64 @@
 public class State {
-    public String name;
-    public State[] next;
-    public Alphabet alphabet;
-    public String IsFinal; //to See if The State is Fianl or not
-    public State(String name, Alphabet alphabets){
-  
-        this.name=name;
-        next= new State[alphabets.ListOfChar.length];
-        this.alphabet=alphabets; 
+    private String name;
+    private boolean isFinal; 
+    private boolean isStart; 
+    
+    public State(String name){
+        this.name = name;
+        this.isFinal = false; 
+        this.isStart = false; 
+    }
+   
+    public State(String name, boolean isFinal, boolean isStart){
+        this.name = name;
+        this.isFinal = isFinal;
+        this.isStart = isStart;
     }
 
-    public boolean addState(char a, State next){
-        int indexAlphabet=alphabet.inAlphabet(a);
-            if(indexAlphabet==-1){
-                System.out.println(a+" not In the Alphabet");
-                return false;
-            }
-            this.next[indexAlphabet]=next;
-        return true;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public void setFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+
+    public boolean isStart() {
+        return isStart;
+    }
+
+    public void setStart(boolean isStart) {
+        this.isStart = isStart;
+    }
+
+    @Override
+    public String toString() {
+        String type = "";
+        if(isStart && isFinal) type = " [START, FINAL]";
+        else if(isStart) type = " [START]";
+        else if(isFinal) type = " [FINAL]";
+        
+        return "State " + name + type;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj == null || getClass() != obj.getClass()) return false;
+        State state = (State) obj;
+        return name.equals(state.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }
