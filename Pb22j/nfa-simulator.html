@@ -633,7 +633,7 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw transitions
+           
             transitions.forEach(t => {
                 const from = states.find(s => s.id === t.from);
                 const to = states.find(s => s.id === t.to);
@@ -643,7 +643,7 @@
                     ctx.lineWidth = 2;
                     
                     if (from.id === to.id) {
-                        // Self-loop
+                        
                         ctx.beginPath();
                         ctx.arc(from.x, from.y - 50, 25, 0, 2 * Math.PI);
                         ctx.stroke();
@@ -651,7 +651,7 @@
                         ctx.font = 'bold 16px sans-serif';
                         ctx.fillText(t.symbol, from.x - 8, from.y - 80);
                     } else {
-                        // Arrow
+                       
                         const dx = to.x - from.x;
                         const dy = to.y - from.y;
                         const angle = Math.atan2(dy, dx);
@@ -666,7 +666,7 @@
                         ctx.lineTo(toX, toY);
                         ctx.stroke();
                         
-                        // Arrowhead
+                       
                         const headlen = 12;
                         ctx.beginPath();
                         ctx.moveTo(toX, toY);
@@ -677,7 +677,7 @@
                                  toY - headlen * Math.sin(angle + Math.PI / 6));
                         ctx.stroke();
                         
-                        // Label
+                       
                         ctx.fillStyle = '#333';
                         ctx.font = 'bold 16px sans-serif';
                         const midX = (fromX + toX) / 2;
@@ -687,13 +687,13 @@
                 }
             });
             
-            // Draw states
+           
             states.forEach(state => {
                 const isActive = currentStates.has(state.id);
                 const isStart = state.id === startState;
                 const isFinal = finalStates.includes(state.id);
                 
-                // State circle
+               
                 ctx.beginPath();
                 ctx.arc(state.x, state.y, 35, 0, 2 * Math.PI);
                 ctx.fillStyle = isActive ? '#4ade80' : '#fff';
@@ -702,14 +702,14 @@
                 ctx.lineWidth = isActive ? 4 : 3;
                 ctx.stroke();
                 
-                // Double circle for final states
+               
                 if (isFinal) {
                     ctx.beginPath();
                     ctx.arc(state.x, state.y, 28, 0, 2 * Math.PI);
                     ctx.stroke();
                 }
                 
-                // Start arrow
+               
                 if (isStart) {
                     ctx.beginPath();
                     ctx.moveTo(state.x - 60, state.y);
@@ -726,7 +726,7 @@
                     ctx.stroke();
                 }
                 
-                // Label
+                
                 ctx.fillStyle = '#000';
                 ctx.font = 'bold 20px sans-serif';
                 ctx.textAlign = 'center';
