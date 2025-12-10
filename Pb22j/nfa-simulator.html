@@ -257,11 +257,11 @@
         </div>
 
         <div class="content">
-            <!-- Setup Section -->
+            
             <div class="setup-section active" id="setupSection">
                 <h2 style="margin-bottom: 20px;">Configure Your NFA</h2>
                 
-                <!-- Step 1: States -->
+               
                 <div id="step1" class="step-content">
                     <div class="form-group">
                         <label>Number of States (1-10):</label>
@@ -270,7 +270,7 @@
                     <button class="button" onclick="initStates()">Next</button>
                 </div>
 
-                <!-- Step 2: Alphabet -->
+               
                 <div id="step2" class="step-content" style="display:none;">
                     <div class="form-group">
                         <label>Alphabet (comma separated):</label>
@@ -280,7 +280,7 @@
                     <button class="button" onclick="setAlphabet()">Next</button>
                 </div>
 
-                <!-- Step 3: Start State -->
+               
                 <div id="step3" class="step-content" style="display:none;">
                     <div class="form-group">
                         <label>Start State Number:</label>
@@ -289,7 +289,7 @@
                     <button class="button" onclick="setStartState()">Next</button>
                 </div>
 
-                <!-- Step 4: Final States -->
+              
                 <div id="step4" class="step-content" style="display:none;">
                     <div class="form-group">
                         <label>Final States (comma separated):</label>
@@ -298,7 +298,7 @@
                     <button class="button" onclick="setFinalStates()">Next</button>
                 </div>
 
-                <!-- Step 5: Transitions -->
+               
                 <div id="step5" class="step-content" style="display:none;">
                     <h3>Add Transitions</h3>
                     <p class="hint" id="alphabetDisplay" style="margin-bottom: 15px;"></p>
@@ -320,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- Simulator Section -->
+          
             <div class="simulator-section" id="simulatorSection">
                 <canvas id="nfaCanvas" width="900" height="600"></canvas>
 
