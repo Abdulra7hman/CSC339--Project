@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFA Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .setup-section, .simulator-section {
+            display: none;
+        }
+
+        .setup-section.active, .simulator-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group .hint {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-secondary {
+            background: #6b7280;
+        }
+
+        .button-success {
+            background: #10b981;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .transition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .transition-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .transition-item {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+
+        canvas {
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-control input[type="range"] {
+            width: 150px;
+        }
+
+        .status-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            margin-top: 20px;
+        }
+
+        .status-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+        .result-accepted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .result-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .config-info {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .config-info p {
+            margin-bottom: 8px;
+        }
+
+        .config-info strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> NFA Simulator  CSC339 Project</h1>
+            <p>Interactive Non deterministic Finite Automaton Visualizer</p>
+        </div>
+
+        <div class="content">
+            <!-- Setup Section -->
+            <div class="setup-section active" id="setupSection">
+                <h2 style="margin-bottom: 20px;">Configure Your NFA</h2>
+                
+                <!-- Step 1: States -->
+                <div id="step1" class="step-content">
+                    <div class="form-group">
+                        <label>Number of States (1-10):</label>
+                        <input type="number" id="numStates" min="1" max="10" placeholder="e.g: 3">
+                    </div>
+                    <button class="button" onclick="initStates()">Next</button>
+                </div>
+
+                <!-- Step 2: Alphabet -->
+                <div id="step2" class="step-content" style="display:none;">
+                    <div class="form-group">
+                        <label>Alphabet (comma separated):</label>
+                        <input type="text" id="alphabet" placeholder="e.g: a,b,c">
+                        <div class="hint">Note: ε  will be added automatically as #</div>
+                    </div>
+                    <button class="button" onclick="setAlphabet()">Next</button>
+                </div>
+
+                <!-- Step 3: Start State -->
+                <div id="step3" class="step-content" style="display:none;">
+                    <div class="form-group">
+                        <label>Start State Number:</label>
+                        <input type="number" id="startState" min="0" placeholder="e.g: 0">
+                    </div>
+                    <button class="button" onclick="setStartState()">Next</button>
+                </div>
+
+                <!-- Step 4: Final States -->
+                <div id="step4" class="step-content" style="display:none;">
+                    <div class="form-group">
+                        <label>Final States (comma separated):</label>
+                        <input type="text" id="finalStates" placeholder="e.g: 2,3">
+                    </div>
+                    <button class="button" onclick="setFinalStates()">Next</button>
+                </div>
+
+                <!-- Step 5: Transitions -->
+                <div id="step5" class="step-content" style="display:none;">
+                    <h3>Add Transitions</h3>
+                    <p class="hint" id="alphabetDisplay" style="margin-bottom: 15px;"></p>
+                    
+                    <div class="transition-grid">
+                        <input type="number" id="transFrom" placeholder="From State" min="0">
+                        <input type="text" id="transSymbol" placeholder="Symbol" maxlength="1">
+                        <input type="number" id="transTo" placeholder="To State" min="0">
+                        <button class="button button-success" onclick="addTransition()">Add</button>
+                    </div>
+
+                    <div class="transition-list" id="transitionList"></div>
+
+                    <div class="button-group" style="margin-top: 20px;">
+                        <button class="button" onclick="completeSetup()" id="completeBtn" disabled>
+                            Start Simulation →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulator Section -->
+            <div class="simulator-section" id="simulatorSection">
+                <canvas id="nfaCanvas" width="900" height="600"></canvas>
+
+                <div class="controls">
+                    <div class="input-group">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Input String:</label>
+                        <input type="text" id="inputString" placeholder="Enter string to test" 
+                               style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    </div>
+
+                    <div class="control-buttons">
+                        <button class="button button-secondary" onclick="resetSimulation()">⏮ Reset</button>
+                        <button class="button" onclick="toggleSimulation()" id="playBtn">▶ Play</button>
+                        <button class="button button-success" onclick="stepForward()" id="stepBtn">⏭ Step</button>
+                        
+                        <div class="speed-control">
+                            <label style="font-weight: 600;">Speed:</label>
+                            <input type="range" id="speed" min="200" max="2000" step="200" value="1000">
+                            <span id="speedDisplay">1000ms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-panel">
+                    <div class="status-row">
+                        <div class="status-item">
+                            <div class="status-label">Current Symbol</div>
+                            <div class="status-value" id="currentSymbol">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Progress</div>
+                            <div class="status-value" id="progress">0 / 0</div>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Current States</div>
+                        <div class="status-value" id="currentStates">-</div>
+                    </div>
+                    <div id="resultBox"></div>
+                </div>
+
+                <div class="config-info">
+                    <h3 style="margin-bottom: 10px;">Machine Configuration</h3>
+                    <p><strong>States:</strong> <span id="configStates"></span></p>
+                    <p><strong>Alphabet:</strong> <span id="configAlphabet"></span></p>
+                    <p><strong>Start:</strong> <span id="configStart"></span></p>
+                    <p><strong>Final:</strong> <span id="configFinal"></span></p>
+                    <p><strong>Transitions:</strong> <span id="configTransitions"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let states = [];
+        let alphabet = [];
+        let transitions = [];
+        let startState = null;
+        let finalStates = [];
+        let currentStates = new Set();
+        let currentSymbolIndex = -1;
+        let inputString = '';
+        let isSimulating = false;
+        let simulationInterval = null;
+        let canvas, ctx;
+
+        function initStates() {
+            const num = parseInt(document.getElementById('numStates').value);
+            if (num > 0 && num <= 10) {
+                states = [];
+                for (let i = 0; i < num; i++) {
+                    states.push({
+                        id: `q${i}`,
+                        name: `q${i}`,
+                        x: 0,
+                        y: 0
+                    });
+                }
+                positionStates();
+                showStep(2);
+            } else {
+                alert('Please enter a number between 1 and 10');
+            }
+        }
+
+        function setAlphabet() {
+            const input = document.getElementById('alphabet').value;
+            const chars = input.split(',').map(c => c.trim()).filter(c => c);
+            if (chars.length > 0) {
+                alphabet = [...chars, '#'];
+                document.getElementById('alphabetDisplay').textContent = 
+                    `Alphabet: ${alphabet.join(', ')}`;
+                showStep(3);
+            } else {
+                alert('Please enter at least one symbol');
+            }
+        }
+
+        function setStartState() {
+            const num = parseInt(document.getElementById('startState').value);
+            const stateId = `q${num}`;
+            if (states.find(s => s.id === stateId)) {
+                startState = stateId;
+                showStep(4);
+            } else {
+                alert('Invalid state number');
+            }
+        }
+
+        function setFinalStates() {
+            const input = document.getElementById('finalStates').value;
+            const indices = input.split(',').map(s => parseInt(s.trim()));
+            const finals = indices.map(i => `q${i}`).filter(id => states.find(s => s.id === id));
+            if (finals.length > 0) {
+                finalStates = finals;
+                showStep(5);
+            } else {
+                alert('Please enter valid state numbers');
+            }
+        }
+
+        function addTransition() {
+            const from = `q${parseInt(document.getElementById('transFrom').value)}`;
+            const symbol = document.getElementById('transSymbol').value;
+            const to = `q${parseInt(document.getElementById('transTo').value)}`;
+
+            if (states.find(s => s.id === from) && states.find(s => s.id === to) && 
+                alphabet.includes(symbol)) {
+                transitions.push({ from, symbol, to });
+                updateTransitionList();
+                document.getElementById('transFrom').value = '';
+                document.getElementById('transSymbol').value = '';
+                document.getElementById('transTo').value = '';
+                document.getElementById('completeBtn').disabled = false;
+            } else {
+                alert('Invalid transition. Check state numbers and symbol.');
+            }
+        }
+
+        function updateTransitionList() {
+            const list = document.getElementById('transitionList');
+            list.innerHTML = '<h4 style="margin-bottom: 10px;">Transitions:</h4>';
+            transitions.forEach((t, i) => {
+                const div = document.createElement('div');
+                div.className = 'transition-item';
+                div.textContent = `${t.from} --${t.symbol}-→ ${t.to}`;
+                list.appendChild(div);
+            });
+        }
+
+        function completeSetup() {
+            if (transitions.length === 0) {
+                alert('Please add at least one transition');
+                return;
+            }
+            document.getElementById('setupSection').classList.remove('active');
+            document.getElementById('simulatorSection').classList.add('active');
+            
+            canvas = document.getElementById('nfaCanvas');
+            ctx = canvas.getContext('2d');
+            
+            updateConfigInfo();
+            resetSimulation();
+            drawNFA();
+        }
+
+        function showStep(num) {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`step${i}`).style.display = 'none';
+            }
+            document.getElementById(`step${num}`).style.display = 'block';
+        }
+
+        function positionStates() {
+            const centerX = 450;
+            const centerY = 300;
+            const radius = 200;
+            const angleStep = (2 * Math.PI) / states.length;
+            
+            states.forEach((state, i) => {
+                state.x = centerX + radius * Math.cos(i * angleStep - Math.PI / 2);
+                state.y = centerY + radius * Math.sin(i * angleStep - Math.PI / 2);
+            });
+        }
+
+        function getEpsilonClosure(stateSet) {
+            const closure = new Set(stateSet);
+            const stack = [...stateSet];
+            
+            while (stack.length > 0) {
+                const current = stack.pop();
+                transitions.forEach(t => {
+                    if (t.from === current && t.symbol === '#' && !closure.has(t.to)) {
+                        closure.add(t.to);
+                        stack.push(t.to);
+                    }
+                });
+            }
+            return closure;
+        }
+
+        function resetSimulation() {
+            if (startState) {
+                currentStates = getEpsilonClosure(new Set([startState]));
+            }
+            currentSymbolIndex = -1;
+            isSimulating = false;
+            document.getElementById('playBtn').textContent = '▶ Play';
+            document.getElementById('resultBox').innerHTML = '';
+            updateStatus();
+            drawNFA();
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+                simulationInterval = null;
+            }
+        }
+
+        function toggleSimulation() {
+            inputString = document.getElementById('inputString').value;
+            if (!inputString) {
+                alert('Please enter an input string');
+                return;
+            }
+
+            if (isSimulating) {
+                isSimulating = false;
+                document.getElementById('playBtn').textContent = '▶ Play';
+                clearInterval(simulationInterval);
+            } else {
+                isSimulating = true;
+                document.getElementById('playBtn').textContent = '⏸ Pause';
+                const speed = parseInt(document.getElementById('speed').value);
+                simulationInterval = setInterval(() => {
+                    if (currentSymbolIndex >= inputString.length - 1) {
+                        toggleSimulation();
+                    } else {
+                        stepForward();
+                    }
+                }, speed);
+            }
+        }
+
+        function stepForward() {
+            inputString = document.getElementById('inputString').value;
+            if (!inputString) {
+                alert('Please enter an input string');
+                return;
+            }
+
+            if (currentSymbolIndex >= inputString.length - 1) {
+                checkAcceptance();
+                return;
+            }
+            
+            const nextIndex = currentSymbolIndex + 1;
+            const symbol = inputString[nextIndex];
+            
+            const nextStates = new Set();
+            currentStates.forEach(state => {
+                transitions.forEach(t => {
+                    if (t.from === state && t.symbol === symbol) {
+                        nextStates.add(t.to);
+                    }
+                });
+            });
+            
+            currentStates = getEpsilonClosure(nextStates);
+            currentSymbolIndex = nextIndex;
+            
+            updateStatus();
+            drawNFA();
+            
+            if (currentSymbolIndex === inputString.length - 1) {
+                checkAcceptance();
+            }
+        }
+
+        function checkAcceptance() {
+            const accepted = [...currentStates].some(s => finalStates.includes(s));
+            const resultBox = document.getElementById('resultBox');
+            resultBox.className = accepted ? 'result-box result-accepted' : 'result-box result-rejected';
+            resultBox.textContent = accepted ? '✓ ACCEPTED' : '✗ REJECTED';
+            
+            if (isSimulating) {
+                toggleSimulation();
+            }
+        }
+
+        function updateStatus() {
+            inputString = document.getElementById('inputString').value;
+            document.getElementById('currentSymbol').textContent = 
+                currentSymbolIndex >= 0 && currentSymbolIndex < inputString.length
+                ? inputString[currentSymbolIndex] : '-';
+            document.getElementById('progress').textContent = 
+                `${currentSymbolIndex + 1} / ${inputString.length || 0}`;
+            document.getElementById('currentStates').textContent = 
+                [...currentStates].join(', ') || '-';
+        }
+
+        function updateConfigInfo() {
+            document.getElementById('configStates').textContent = states.map(s => s.id).join(', ');
+            document.getElementById('configAlphabet').textContent = alphabet.join(', ');
+            document.getElementById('configStart').textContent = startState;
+            document.getElementById('configFinal').textContent = finalStates.join(', ');
+            document.getElementById('configTransitions').textContent = transitions.length;
+        }
+
+        function drawNFA() {
+            if (!ctx) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw transitions
+            transitions.forEach(t => {
+                const from = states.find(s => s.id === t.from);
+                const to = states.find(s => s.id === t.to);
+                
+                if (from && to) {
+                    ctx.strokeStyle = '#666';
+                    ctx.lineWidth = 2;
+                    
+                    if (from.id === to.id) {
+                        // Self-loop
+                        ctx.beginPath();
+                        ctx.arc(from.x, from.y - 50, 25, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.fillText(t.symbol, from.x - 8, from.y - 80);
+                    } else {
+                        // Arrow
+                        const dx = to.x - from.x;
+                        const dy = to.y - from.y;
+                        const angle = Math.atan2(dy, dx);
+                        
+                        const fromX = from.x + 35 * Math.cos(angle);
+                        const fromY = from.y + 35 * Math.sin(angle);
+                        const toX = to.x - 35 * Math.cos(angle);
+                        const toY = to.y - 35 * Math.sin(angle);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(fromX, fromY);
+                        ctx.lineTo(toX, toY);
+                        ctx.stroke();
+                        
+                        // Arrowhead
+                        const headlen = 12;
+                        ctx.beginPath();
+                        ctx.moveTo(toX, toY);
+                        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6),
+                                 toY - headlen * Math.sin(angle - Math.PI / 6));
+                        ctx.moveTo(toX, toY);
+                        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6),
+                                 toY - headlen * Math.sin(angle + Math.PI / 6));
+                        ctx.stroke();
+                        
+                        // Label
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 16px sans-serif';
+                        const midX = (fromX + toX) / 2;
+                        const midY = (fromY + toY) / 2;
+                        ctx.fillText(t.symbol, midX + 15, midY - 5);
+                    }
+                }
+            });
+            
+            // Draw states
+            states.forEach(state => {
+                const isActive = currentStates.has(state.id);
+                const isStart = state.id === startState;
+                const isFinal = finalStates.includes(state.id);
+                
+                // State circle
+                ctx.beginPath();
+                ctx.arc(state.x, state.y, 35, 0, 2 * Math.PI);
+                ctx.fillStyle = isActive ? '#4ade80' : '#fff';
+                ctx.fill();
+                ctx.strokeStyle = isActive ? '#16a34a' : '#667eea';
+                ctx.lineWidth = isActive ? 4 : 3;
+                ctx.stroke();
+                
+                // Double circle for final states
+                if (isFinal) {
+                    ctx.beginPath();
+                    ctx.arc(state.x, state.y, 28, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+                
+                // Start arrow
+                if (isStart) {
+                    ctx.beginPath();
+                    ctx.moveTo(state.x - 60, state.y);
+                    ctx.lineTo(state.x - 35, state.y);
+                    ctx.strokeStyle = '#667eea';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(state.x - 35, state.y);
+                    ctx.lineTo(state.x - 45, state.y - 8);
+                    ctx.moveTo(state.x - 35, state.y);
+                    ctx.lineTo(state.x - 45, state.y + 8);
+                    ctx.stroke();
+                }
+                
+                // Label
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(state.name, state.x, state.y);
+            });
+        }
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            document.getElementById('speedDisplay').textContent = e.target.value + 'ms';
+        });
+    </script>
+</body>
+</html>
